@@ -30,3 +30,42 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Secrets and environment
+.env
+.env.*
+!.env.example
+secrets/
+*.secret
+*.age
+*.pem
+*.key
+*.p12
+*.pfx
+
+# SSH and Tor private identities
+id_rsa
+id_ed25519
+community_onion_github*
+hs_ed25519_secret_key
+hs_ed25519_public_key
+
+# Runtime data
+data/
+backups/
+postgres-data/
+uploads/
+storage/
+
+# Local and temporary files
+*.bak
+*.backup
+*.backup-*
+*.tmp
+*.swp
+*~
+
+# Server migration artifacts
+compose.go-prod.yaml
+compose.nginx-legacy.yaml
+site/

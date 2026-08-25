@@ -1,0 +1,27 @@
+name: community-onion-go-prod
+
+services:
+  community-app:
+    build:
+      context: ./app
+    image: community-onion-app:2026-08-25
+    container_name: community-onion-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8088:8080"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid,nodev
+    mem_limit: 64m
+    cpus: 0.25
+    pids_limit: 64
+    networks:
+      - app_frontend
+
+networks:
+  app_frontend:
+    name: community_onion_app_frontend
