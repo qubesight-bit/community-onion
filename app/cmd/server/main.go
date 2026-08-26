@@ -133,6 +133,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
+	mux.HandleFunc("/publicaciones", newPostsHandler(pool))
 	mux.HandleFunc("/healthz", health)
 	mux.HandleFunc("/readyz", readiness(pool.Ping))
 
