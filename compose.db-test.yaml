@@ -1,0 +1,46 @@
+name: community-onion-db-test
+
+services:
+  database:
+    image: postgres:17.11-alpine3.23
+    container_name: community-onion-db-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: community_onion
+      POSTGRES_USER: community_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+    secrets:
+      - postgres_admin_password
+      - postgres_app_password
+    volumes:
+      - db_test_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U community_admin -d community_onion"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    shm_size: 128m
+    mem_limit: 256m
+    cpus: 0.50
+    pids_limit: 128
+    networks:
+      - db_test_internal
+
+secrets:
+  postgres_admin_password:
+    file: ./secrets/postgres_admin_password
+  postgres_app_password:
+    file: ./secrets/postgres_app_password
+
+volumes:
+  db_test_data:
+    name: community_onion_db_test_data
+
+networks:
+  db_test_internal:
+    name: community_onion_db_test_internal
+    internal: true

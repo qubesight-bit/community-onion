@@ -1,0 +1,43 @@
+name: community-onion-integration-test
+
+services:
+  app-test:
+    build:
+      context: ./app
+    image: community-onion-app:postgres-test
+    container_name: community-onion-app-postgres-test
+    restart: unless-stopped
+    environment:
+      DB_HOST: community-onion-db-test
+      DB_PORT: "5432"
+      DB_NAME: community_onion
+      DB_USER: community_app
+      DB_PASSWORD_FILE: /run/secrets/postgres_app_password
+    secrets:
+      - postgres_app_password
+    ports:
+      - "127.0.0.1:8089:8080"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid,nodev
+    mem_limit: 96m
+    cpus: 0.25
+    pids_limit: 64
+    networks:
+      - integration_frontend
+      - database_network
+
+secrets:
+  postgres_app_password:
+    file: ./secrets/postgres_app_password
+
+networks:
+  integration_frontend:
+    name: community_onion_integration_frontend
+  database_network:
+    external: true
+    name: community_onion_db_test_internal

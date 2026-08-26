@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"log"
@@ -9,6 +10,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"community-onion/internal/database"
 )
 
 const homePage = `<!doctype html>
@@ -120,9 +123,18 @@ func health(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	startupContext, cancelStartup := context.WithTimeout(context.Background(), 10*time.Second)
+	pool, err := database.Open(startupContext, database.ConfigFromEnvironment())
+	cancelStartup()
+	if err != nil {
+		log.Fatalf("database startup: %v", err)
+	}
+	defer pool.Close()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/healthz", health)
+	mux.HandleFunc("/readyz", readiness(pool.Ping))
 
 	server := &http.Server{
 		Addr:              ":8080",
@@ -148,4 +160,25 @@ func main() {
 
 	log.Println("shutting down")
 	_ = server.Close()
+}
+
+func readiness(ping func(context.Context) error) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			w.Header().Set("Allow", "GET")
+			http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+		defer cancel()
+
+		if err := ping(ctx); err != nil {
+			http.Error(w, "database unavailable", http.StatusServiceUnavailable)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, _ = fmt.Fprintln(w, "ready")
+	}
 }
