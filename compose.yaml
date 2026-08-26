@@ -33,7 +33,7 @@ services:
   app:
     build:
       context: ./app
-    image: community-onion-app:2026-08-26-postgresql
+    image: community-onion-app:2026-08-26-posts-v2
     container_name: community-onion-app-postgres-prod
     restart: unless-stopped
     depends_on:

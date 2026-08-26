@@ -62,6 +62,7 @@ const homePage = `<!doctype html>
 			<li>Sin rastreadores.</li>
 			<li>Sin recursos externos.</li>
 			<li>Accesible mediante Tor.</li>
+                        <li><a href="/publicaciones">Ver publicaciones</a></li>
 		</ul>
 	</main>
 </body>
