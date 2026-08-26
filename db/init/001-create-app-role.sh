@@ -18,5 +18,5 @@ CREATE ROLE community_app
   PASSWORD :'app_password';
 
 GRANT CONNECT ON DATABASE community_onion TO community_app;
-GRANT USAGE, CREATE ON SCHEMA public TO community_app;
+GRANT USAGE ON SCHEMA public TO community_app;
 EOSQL
