@@ -1,12 +1,52 @@
-name: community-onion-go-prod
+name: community-onion-production
 
 services:
-  community-app:
+  database:
+    image: postgres:17.11-alpine3.23
+    container_name: community-onion-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: community_onion
+      POSTGRES_USER: community_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+    secrets:
+      - postgres_admin_password
+      - postgres_app_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U community_admin -d community_onion"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    shm_size: 128m
+    mem_limit: 256m
+    cpus: 0.50
+    pids_limit: 128
+    networks:
+      - database_internal
+
+  app:
     build:
       context: ./app
-    image: community-onion-app:2026-08-25
-    container_name: community-onion-app
+    image: community-onion-app:2026-08-26-postgresql
+    container_name: community-onion-app-postgres-prod
     restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      DB_HOST: database
+      DB_PORT: "5432"
+      DB_NAME: community_onion
+      DB_USER: community_app
+      DB_PASSWORD_FILE: /run/secrets/postgres_app_password
+    secrets:
+      - postgres_app_password
     ports:
       - "127.0.0.1:8088:8080"
     security_opt:
@@ -16,12 +56,26 @@ services:
     read_only: true
     tmpfs:
       - /tmp:size=16m,noexec,nosuid,nodev
-    mem_limit: 64m
+    mem_limit: 96m
     cpus: 0.25
     pids_limit: 64
     networks:
       - app_frontend
+      - database_internal
+
+secrets:
+  postgres_admin_password:
+    file: ./secrets/postgres_admin_password
+  postgres_app_password:
+    file: ./secrets/postgres_app_password
+
+volumes:
+  postgres_data:
+    name: community_onion_postgres_data
 
 networks:
   app_frontend:
-    name: community_onion_app_frontend
+    name: community_onion_app_frontend_postgres
+  database_internal:
+    name: community_onion_database_internal
+    internal: true
