@@ -20,34 +20,7 @@ const homePage = `<!doctype html>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<title>Nodo comunitario</title>
-	<style>
-		:root {
-			color-scheme: light;
-			font-family: system-ui, sans-serif;
-		}
-		body {
-			max-width: 52rem;
-			margin: 0 auto;
-			padding: 4rem 1.5rem;
-			line-height: 1.6;
-			color: #172033;
-			background: #f4f7fb;
-		}
-		main {
-			padding: 2rem;
-			border: 1px solid #d7dfec;
-			border-radius: .75rem;
-			background: #fff;
-		}
-		.status {
-			display: inline-block;
-			padding: .25rem .65rem;
-			border: 1px solid #9ab6df;
-			border-radius: 999px;
-			color: #174c8f;
-			background: #edf5ff;
-		}
-	</style>
+	<link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
 	<main>
@@ -74,7 +47,7 @@ func securityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set(
 			"Content-Security-Policy",
-			"default-src 'none'; style-src 'unsafe-inline'; "+
+			"default-src 'none'; style-src 'self'; "+
 				"base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
 		)
 		w.Header().Set("Referrer-Policy", "no-referrer")
@@ -134,6 +107,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
+	mux.HandleFunc("/assets/site.css", stylesheet)
 	mux.HandleFunc("/publicaciones", newPostsHandler(pool))
 	mux.HandleFunc("/healthz", health)
 	mux.HandleFunc("/readyz", readiness(pool.Ping))

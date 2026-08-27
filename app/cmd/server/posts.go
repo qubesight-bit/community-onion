@@ -17,40 +17,7 @@ const postsPageHTML = `<!doctype html>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<title>Publicaciones — Nodo comunitario</title>
-	<style>
-		:root {
-			color-scheme: light;
-			font-family: system-ui, sans-serif;
-		}
-		body {
-			max-width: 52rem;
-			margin: 0 auto;
-			padding: 3rem 1.5rem;
-			line-height: 1.6;
-			color: #172033;
-			background: #f4f7fb;
-		}
-		main {
-			padding: 2rem;
-			border: 1px solid #d7dfec;
-			border-radius: .75rem;
-			background: #fff;
-		}
-		article {
-			margin-top: 2rem;
-			padding-top: 1.5rem;
-			border-top: 1px solid #d7dfec;
-		}
-		.content {
-			white-space: pre-wrap;
-		}
-		time {
-			color: #526079;
-		}
-		a {
-			color: #174c8f;
-		}
-	</style>
+	<link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
 	<main>
